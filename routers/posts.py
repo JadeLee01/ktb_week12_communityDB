@@ -5,33 +5,36 @@ from fastapi.responses import StreamingResponse
 import io, mimetypes, storage
 from deps import getCurrentUser
 from schemas import PostCreate, PostOut, CommentCreate, CommentOut
-from controllersPosts import ctrlListPosts, ctrlCreatePost, ctrlGetPost, ctrlUpdatePost, ctrlDeletePost
+from controllers.posts import ctrlListPosts, ctrlCreatePost, ctrlGetPost, ctrlUpdatePost, ctrlDeletePost
 from storage import likes, comments, postImages
 from typing import Optional, List
 from datetime import datetime, timezone
 from utils import notFound, forbidden
-
+from sqlalchemy.orm import Session
+from database import get_db
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 @router.get("", response_model = List[PostOut])
-def listPosts(skip: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=1000), q: Optional[str] = None,):
-    return ctrlListPosts(skip, limit, q)
+def listPosts(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=1000),
+    q: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    return ctrlListPosts(db, skip, limit, q)
 
 @router.post("", response_model = PostOut)
-def createPost(p: PostCreate, current = Depends(getCurrentUser)):
-    return ctrlCreatePost(current["id"], p.title, p.body)
+def createPost(p: PostCreate, current = Depends(getCurrentUser), db: Session = Depends(get_db)):
+    return ctrlCreatePost(db, current["id"], p.title, p.body)
 
 @router.get("/{postId}", response_model = PostOut)
-def getPost(postId: int):
-    p = ctrlGetPost(postId)
-    p["views"] = p.get("views", 0) + 1
-
-    return p
+def getPost(postId: int, db: Session = Depends(get_db)):
+    return ctrlGetPost(db, postId)
 
 @router.put("/{postId}", response_model = PostOut)
-def updatePost(postId: int, p: PostCreate, current = Depends(getCurrentUser)):
-    return ctrlUpdatePost(postId, current["id"], p.title, p.body)
+def updatePost(postId: int, p: PostCreate, current = Depends(getCurrentUser), db: Session = Depends(get_db)):
+    return ctrlUpdatePost(db, postId, current["id"], p.title, p.body)
 
 @router.post("/{postId}/like")
 def toggleLike(postId: int, current = Depends(getCurrentUser)):
@@ -50,11 +53,9 @@ def toggleLike(postId: int, current = Depends(getCurrentUser)):
     
     return {"liked": liked, "likesCount": p["likesCount"]}
 
-
 @router.delete("/{postId}")
-def deletePost(postId: int, current = Depends(getCurrentUser)):
-    ctrlDeletePost(postId, current["id"])
-    
+def deletePost(postId: int, current = Depends(getCurrentUser), db: Session = Depends(get_db)):
+    ctrlDeletePost(db, postId, current["id"])
     return {"ok": True}
 
 @router.get("/{postId}/comments", response_model = List[CommentOut])

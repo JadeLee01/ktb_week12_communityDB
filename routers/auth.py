@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from schemas import SignUpIn, LoginIn, UserOut, UserUpdate, PasswordChangeIn
 from deps import getCurrentUser
 from utils import validatePassword, pwdContext, normalizeEmail, validateNickname, badRequest
-from controllersAuth import ctrlSignup, ctrlLogin, ctrlUpdateUser
+from controllers.auth import ctrlSignup, ctrlLogin, ctrlUpdateUser
 from storage import emails, nicknames, users, sessions
 
 router = APIRouter(prefix = "/auth", tags = ["auth"])

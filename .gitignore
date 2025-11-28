@@ -1,18 +1,23 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
 
-# Virtual environment
+# Virtualenv
 venv/
 .env/
 
 # OS
 .DS_Store
 
-# HuggingFace / transformers cache
+# SQLite
+*.db
+*.sqlite3
+
+# HuggingFace / transformers
 .cache/
 hf_cache/
 
-# Model files
-*.safetensors
+# PyTorch / model files
 *.bin
+*.safetensors

@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from typing import Dict, Any
 from storage import users, emails, nicknames, sessions, userSeq
 from utils import normalizeEmail, validatePassword, validateNickname, pwdContext, badRequest, authRequired, notFound
-from modelsAuth import createUser, getUserByEmailNorm, getUser, isEmailTaken, isNicknameTaken, updateNickname, issueToken, deleteUser
+from models.auth import createUser, getUserByEmailNorm, getUser, isEmailTaken, isNicknameTaken, updateNickname, issueToken, deleteUser
 
 def ctrlSignup(email: str, password: str, nickname: str) -> Dict[str, Any]:
     emailNorm = normalizeEmail(email)

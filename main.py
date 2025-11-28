@@ -2,13 +2,19 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from routersAuth import router as authRouter
-from routersPosts import router as postsRouter
+from routers.auth import router as authRouter
+from routers.posts import router as postsRouter
 from datetime import datetime, timezone
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from database import Base, engine
+import db_models
+
 
 app = FastAPI(title = "Community API", version = "0.2.0")
+
+Base.metadata.create_all(bind = engine)
+
 
 origins = [
     "http://localhost:5173",
